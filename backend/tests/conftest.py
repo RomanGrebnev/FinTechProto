@@ -55,6 +55,7 @@ def auth(client):
 PROFILE = {
     "age": 35, "annual_income": 50000, "savings_goal": "wealth_growth",
     "monthly_investment": 300, "risk_tolerance": 3, "horizon_years": 10,
+    "investment_knowledge": "basic", "investment_experience_years": 3, "max_acceptable_loss_pct": 20,
 }
 
 

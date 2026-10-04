@@ -22,6 +22,15 @@ const RISK = [
   { value: 5, label: "Adventurous", hint: "I'm chasing growth and can stomach large swings." },
 ];
 
+const KNOWLEDGE = [
+  { value: "none", label: "None", hint: "I have never invested." },
+  { value: "basic", label: "Basic", hint: "I know savings accounts, funds and ETFs." },
+  { value: "informed", label: "Informed", hint: "I understand stocks, bonds and how markets move." },
+  { value: "advanced", label: "Advanced", hint: "I understand derivatives, leverage and complex products." },
+];
+
+const MAX_LOSSES = [0, 5, 10, 20, 30, 50];
+
 const STEPS = [
   { key: "age", title: "How old are you?", hint: "Your age helps us gauge how much time your money has to grow." },
   { key: "annual_income", title: "What is your annual net income?", hint: "An estimate is fine. It's used to size suggestions, never shared." },
@@ -29,6 +38,9 @@ const STEPS = [
   { key: "monthly_investment", title: "How much can you invest each month?", hint: "Regular contributions are the most reliable way to build wealth." },
   { key: "risk_tolerance", title: "How do you feel about risk?", hint: "Imagine your portfolio falls sharply in a market crash." },
   { key: "horizon_years", title: "When will you need this money?", hint: "Your investment horizon — the longer, the more volatility you can absorb." },
+  { key: "investment_knowledge", title: "How well do you know investing?", hint: "Pick the level that best describes your knowledge of financial products." },
+  { key: "investment_experience_years", title: "How long have you been investing?", hint: "Years of hands-on experience with financial products. Enter 0 if none." },
+  { key: "max_acceptable_loss_pct", title: "What loss could you bear?", hint: "The largest fall in your investments you could absorb without it hurting your finances." },
 ];
 
 export default function Onboarding() {
@@ -36,7 +48,7 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState(
-    user.profile || { age: "", annual_income: "", savings_goal: "", monthly_investment: "", risk_tolerance: 0, horizon_years: 10 }
+    user.profile ? { ...user.profile, investment_knowledge: user.profile.investment_knowledge ?? "", investment_experience_years: user.profile.investment_experience_years ?? "", max_acceptable_loss_pct: user.profile.max_acceptable_loss_pct ?? "" } : { age: "", annual_income: "", savings_goal: "", monthly_investment: "", risk_tolerance: 0, horizon_years: 10, investment_knowledge: "", investment_experience_years: "", max_acceptable_loss_pct: "" }
   );
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -51,6 +63,9 @@ export default function Onboarding() {
     monthly_investment: value !== "" && value >= 0,
     risk_tolerance: value >= 1,
     horizon_years: value >= 1,
+    investment_knowledge: !!value,
+    investment_experience_years: value !== "" && value >= 0 && value <= 50,
+    max_acceptable_loss_pct: MAX_LOSSES.includes(value),
   }[s.key];
 
   const next = async (e) => {
@@ -62,7 +77,7 @@ export default function Onboarding() {
     try {
       await api("/profile", {
         method: "PUT",
-        body: { ...form, age: +form.age, annual_income: +form.annual_income, monthly_investment: +form.monthly_investment },
+        body: { ...form, age: +form.age, annual_income: +form.annual_income, monthly_investment: +form.monthly_investment, investment_experience_years: +form.investment_experience_years },
       });
       await refresh();
       navigate("/portfolio", { replace: true });
@@ -97,6 +112,7 @@ export default function Onboarding() {
         <div className="mt-8">
           {s.key === "age" && numberInput("years", { min: 18, max: 100, placeholder: "35" })}
           {s.key === "annual_income" && numberInput("€ / yr", { min: 0, step: 1000, placeholder: "45000" })}
+          {s.key === "investment_experience_years" && numberInput("years", { min: 0, max: 50, placeholder: "3" })}
           {s.key === "monthly_investment" && numberInput("€ / mo", { min: 0, step: 50, placeholder: "300" })}
 
           {s.key === "savings_goal" && (
@@ -106,6 +122,29 @@ export default function Onboarding() {
                   className={`rounded-2xl p-4 text-left ring-1 transition ${value === g.value ? "bg-ink text-white ring-ink" : "bg-white ring-slate-200 hover:ring-slate-400"}`}>
                   <div className="font-semibold">{g.label}</div>
                   <div className={`mt-0.5 text-xs ${value === g.value ? "text-slate-300" : "text-slate-500"}`}>{g.hint}</div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {s.key === "investment_knowledge" && (
+            <div className="space-y-2.5">
+              {KNOWLEDGE.map((k) => (
+                <button type="button" key={k.value} onClick={() => set(k.value)}
+                  className={`w-full rounded-2xl p-4 text-left ring-1 transition ${value === k.value ? "bg-ink text-white ring-ink" : "bg-white ring-slate-200 hover:ring-slate-400"}`}>
+                  <div className="font-semibold">{k.label}</div>
+                  <div className={`mt-0.5 text-sm ${value === k.value ? "text-slate-300" : "text-slate-500"}`}>{k.hint}</div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {s.key === "max_acceptable_loss_pct" && (
+            <div className="grid grid-cols-3 gap-3">
+              {MAX_LOSSES.map((m) => (
+                <button type="button" key={m} onClick={() => set(m)}
+                  className={`rounded-2xl p-4 text-center text-lg font-semibold ring-1 transition ${value === m ? "bg-ink text-white ring-ink" : "bg-white ring-slate-200 hover:ring-slate-400"}`}>
+                  {m === 0 ? "None" : `${m}%`}
                 </button>
               ))}
             </div>

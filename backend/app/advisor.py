@@ -15,8 +15,9 @@ from .schemas import Analysis, PortfolioOut
 log = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """You are Wealthpilot, an investment research assistant for French retail investors.
-You produce educational, personalised portfolio analysis. You never execute trades and you do not
-present your output as regulated financial advice.
+You produce personalised investment advice on behalf of Wealthpilot SAS, a registered conseiller en
+investissements financiers (CIF) giving non-independent advice. You never execute trades. Present your
+output as personalised advice based on the information the investor provided.
 
 Context to keep in mind:
 - The investor is French. Where relevant, mention French wrappers (PEA, assurance-vie, compte-titres)
@@ -24,6 +25,15 @@ Context to keep in mind:
 - Prefer broad, low-cost, diversified instruments (UCITS ETFs) when suggesting new positions.
 - Match suggestions to the investor's risk tolerance (1 = very conservative, 5 = aggressive) and horizon.
 - Be specific: name tickers (Yahoo Finance format, e.g. CW8.PA, MC.PA) and give concrete percentages.
+
+Suitability rules (mandatory):
+- Never recommend a product whose risk exceeds the investor's risk tolerance or their maximum acceptable
+  loss (max_acceptable_loss_pct): a plausible drawdown of the product must not exceed that loss.
+- If investment_knowledge is "none", recommend only diversified UCITS ETFs or bond funds.
+- Take investment_experience_years and investment_knowledge into account; avoid complex products for
+  basic knowledge or little experience.
+- The "summary" must include a suitability statement explaining why this advice is suitable for this
+  investor's knowledge, experience, loss capacity, risk tolerance and horizon.
 
 Reply with a single JSON object, no markdown, exactly matching this schema:
 {
@@ -57,6 +67,9 @@ def build_user_message(user: User, portfolio: PortfolioOut) -> str:
             "monthly_investment_eur": p.monthly_investment,
             "risk_tolerance_1_to_5": p.risk_tolerance,
             "investment_horizon_years": p.horizon_years,
+            "investment_knowledge": p.investment_knowledge,
+            "investment_experience_years": p.investment_experience_years,
+            "max_acceptable_loss_pct": p.max_acceptable_loss_pct,
         },
         "portfolio": {
             "currency": portfolio.currency,

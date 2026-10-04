@@ -30,8 +30,11 @@ MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY", "")
 MISTRAL_MODEL = os.getenv("MISTRAL_MODEL") or "mistral-large-latest"
 BASE_CURRENCY = "EUR"
 
+# Fictional demo value; set the real ORIAS number in production.
+CIF_ORIAS_NUMBER = os.getenv("CIF_ORIAS_NUMBER", "00000000")
+
 DISCLAIMER = (
-    "Wealthpilot provides information and educational content only. "
-    "This is not financial advice. Always consult a certified investment "
-    "advisor before making investment decisions."
+    "Wealthpilot SAS is a conseiller en investissements financiers (CIF) registered with ORIAS under no. "
+    f"{CIF_ORIAS_NUMBER}. This is non-independent investment advice, based on the information you provided "
+    "in your profile and portfolio. See our Terms of Service (Terms, section 2) for details."
 )
