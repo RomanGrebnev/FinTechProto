@@ -71,8 +71,8 @@ gh pr create --repo $R --base demo/base --head demo/release \
 
 ## 3. Push 1: red
 
-The `compliance` check starts on the PR (about 5 to 15 minutes with the live model). Expected: failure, and one PR comment
-(marker `<!-- ccommit-check -->`) that lists the two blockers W1 and W2.
+The `compliance` check starts on the PR (about 5 to 15 minutes with the live model). Expected: failure, one PR comment
+(marker `<!-- ccommit-check -->`) that lists the two blockers W1 and W2, and one PR review (see "PR review" below).
 
 ```bash
 gh pr checks --repo $R --watch demo/release
@@ -83,7 +83,8 @@ gh pr view --repo $R demo/release --comments | head -20
 
 Push 2 adds the suitability and CIF fixes, `compliance/cif-registration.md`, and `compliance/cco-baseline.json`
 (counsel's W8 "not applicable" review, exported with `cco export-baseline 0.9.0`).
-The same PR comment is edited in place (no second comment).
+The same PR comment is edited in place (no second comment). A new PR review is posted (COMMENT) and the push-1 review
+is dismissed, so only the latest CCOmmit review is live.
 
 ```bash
 scripts/demo_push.sh 2 --yes
@@ -119,6 +120,40 @@ scripts/demo_reset.sh --yes
 scripts/demo_push.sh 1 --yes
 gh pr create --repo $R --base demo/base --head demo/release --title "Release 1.0.0" --body "Wealthpilot 1.0.0 release candidate."
 # red -> scripts/demo_push.sh 2 --yes -> green -> merge -> tag, as above
+```
+
+The reset closes the PR, so a replay starts with no reviews; a new PR gets a fresh review on its first run.
+
+## PR review
+
+On pull requests `ci_run.sh` runs `scripts/ci_review.py` after the audit (stdlib Python, uses `gh`). It reads
+`out/result.json`, `out/fix-plan.md` and the PR's files (`gh api repos/{o}/{r}/pulls/{n}/files`) and posts one review:
+
+- **Inline comments** on the code lines that findings cite (`potential_violation` / `insufficient_evidence`), when the
+  line is in a diff hunk on the right side. Consecutive cited lines become one multi-line comment. Each comment
+  carries the severity badge, the requirement, a one-line why, the law with its official link, and the fix.
+- **Findings in unchanged code**: cited lines outside the diff, as a table in the review body.
+- **Documents (reviewed in CCOmmit)**: business plan, terms, privacy policy and CIF findings, as a table with links to
+  the finding in the CCOmmit app (`CCOMMIT_APP_URL`, repo variable; default `http://127.0.0.1:20001`).
+- **Event**: `REQUEST_CHANGES` when the gate is NOT_READY, `COMMENT` otherwise. GitHub refuses REQUEST_CHANGES on
+  your own PR (a local run as the PR author); the script then posts a COMMENT with the same body.
+- **Re-runs**: earlier CCOmmit reviews (marker `<!-- ccommit-review -->`) are dismissed if they requested changes,
+  otherwise their body is marked superseded. Only the latest review is live.
+
+Preview without posting, or post from a local audit:
+
+```bash
+python3 scripts/ci_review.py --repo $R --pr 1 --result /tmp/ccommit-out/result.json --dry-run
+python3 scripts/ci_review.py --repo $R --pr 1 --result /tmp/ccommit-out/result.json
+```
+
+A local result for the push-1 code (no runner needed):
+
+```bash
+B=$(mktemp -d); git archive demo/push1 | tar -x -C $B
+cd ~/Documents/projects/llm_law_hackathon && set -a && . ./.env && set +a && cd backend
+uv run cco audit --bundle $B --version 1.0.0 --sha $(git -C <FinTechProto clone> rev-parse demo/push1) \
+  --out /tmp/ccommit-out --pr 1 --run-number 1 --branch demo/release
 ```
 
 ## How the demo refs were built
