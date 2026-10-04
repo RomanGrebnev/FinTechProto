@@ -3,6 +3,8 @@ const TOKEN_KEY = "wp_token";
 export const getToken = () => localStorage.getItem(TOKEN_KEY);
 export const setToken = (t) => (t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY));
 
+export const deleteAccount = (password) => api("/auth/me", { method: "DELETE", body: { password } });
+
 export class ApiError extends Error {
   constructor(status, message) {
     super(message);

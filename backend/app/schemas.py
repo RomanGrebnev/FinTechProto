@@ -5,10 +5,17 @@ from pydantic import BaseModel, EmailStr, Field
 
 SavingsGoal = Literal["retirement", "home", "education", "wealth_growth", "emergency_fund", "other"]
 
+InvestmentKnowledge = Literal["none", "basic", "informed", "advanced"]
+MaxLossPct = Literal[0, 5, 10, 20, 30, 50]
+
 
 class Credentials(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8, max_length=128)
+
+
+class DeleteAccount(BaseModel):
+    password: str = Field(min_length=1, max_length=128)
 
 
 class Token(BaseModel):
@@ -23,10 +30,17 @@ class ProfileIn(BaseModel):
     monthly_investment: float = Field(ge=0)
     risk_tolerance: int = Field(ge=1, le=5)
     horizon_years: int = Field(ge=1, le=50)
+    investment_knowledge: InvestmentKnowledge
+    investment_experience_years: int = Field(ge=0, le=50)
+    max_acceptable_loss_pct: MaxLossPct
 
 
 class ProfileOut(ProfileIn):
     model_config = {"from_attributes": True}
+    # Nullable on read: profiles created before FR-SUITABILITY-01 lack these until the client completes them.
+    investment_knowledge: InvestmentKnowledge | None = None
+    investment_experience_years: int | None = None
+    max_acceptable_loss_pct: MaxLossPct | None = None
 
 
 class Me(BaseModel):
@@ -102,6 +116,14 @@ class AnalysisOut(BaseModel):
     source: str
     analysis: Analysis
     disclaimer: str
+    outdated: bool = False
+
+
+class AnalysisSummary(BaseModel):
+    id: int
+    created_at: datetime
+    mode: str
+    outdated: bool
 
 
 class MarketIndex(BaseModel):
