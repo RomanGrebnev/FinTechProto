@@ -1,8 +1,54 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ActionBadge, { SEVERITY } from "../components/ActionBadge";
 import Disclaimer from "../components/Disclaimer";
 import Spinner from "../components/Spinner";
+import { api } from "../lib/api";
 import useAnalysis from "../lib/useAnalysis";
+
+const fmt = (s) => new Date(s + (s.endsWith("Z") || s.includes("+") ? "" : "Z")).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" });
+
+// Past analyses, opened read-only (MiFID II Art. 25(6): clients can retrieve earlier suitability statements)
+function History({ refreshKey }) {
+  const [items, setItems] = useState([]);
+  const [open, setOpen] = useState(null);
+
+  useEffect(() => {
+    api("/recommendations").then(setItems).catch(() => setItems([]));
+  }, [refreshKey]);
+
+  const view = (id) => api(`/recommendations/${id}`).then(setOpen).catch(() => setOpen(null));
+  if (items.length === 0) return null;
+
+  return (
+    <section className="card">
+      <h2 className="font-semibold">History</h2>
+      <ul className="mt-3 divide-y divide-slate-100">
+        {items.map((h) => (
+          <li key={h.id} className="flex items-center justify-between gap-3 py-2 text-sm">
+            <span>{fmt(h.created_at)}<span className="text-slate-500"> · {h.mode === "demo" ? "demo mode" : h.mode}{h.outdated && " · outdated"}</span></span>
+            <button onClick={() => view(h.id)} className="font-semibold text-ink hover:underline">View</button>
+          </li>
+        ))}
+      </ul>
+      {open && (
+        <div className="mt-4 space-y-3 rounded-xl bg-slate-50 p-4">
+          <div className="flex items-center justify-between text-xs text-slate-500">
+            <span>Analysis of {fmt(open.created_at)} (read-only)</span>
+            <button onClick={() => setOpen(null)} className="font-semibold hover:text-ink">Close</button>
+          </div>
+          <p className="text-sm leading-relaxed">{open.analysis.summary}</p>
+          <ul className="space-y-2 text-sm">
+            {open.analysis.recommendations.map((r, i) => (
+              <li key={i}><span className="font-medium">{r.ticker}</span> · {r.title}<div className="text-xs text-slate-500">{r.rationale}</div></li>
+            ))}
+          </ul>
+          <Disclaimer text={open.disclaimer} />
+        </div>
+      )}
+    </section>
+  );
+}
 
 export default function Recommendations() {
   const { analysis, generating, error, generate } = useAnalysis();
@@ -89,6 +135,8 @@ export default function Recommendations() {
           <Disclaimer text={analysis.disclaimer} />
         </>
       )}
+
+      <History refreshKey={analysis?.id} />
     </div>
   );
 }

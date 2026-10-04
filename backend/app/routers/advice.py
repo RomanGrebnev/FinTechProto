@@ -11,7 +11,7 @@ from ..db import get_db
 from ..models import Recommendation, User
 from ..portfolio import build_portfolio
 from ..prices import get_quotes
-from ..schemas import Analysis, AnalysisOut, MarketIndex
+from ..schemas import Analysis, AnalysisOut, AnalysisSummary, MarketIndex
 
 router = APIRouter(prefix="/api", tags=["advice"])
 
@@ -48,6 +48,26 @@ def latest(user: User = Depends(current_user), db: Session = Depends(get_db)):
         .order_by(Recommendation.created_at.desc(), Recommendation.id.desc()).limit(1)
     )
     return _out(rec, user) if rec else None
+
+
+@router.get("/recommendations", response_model=list[AnalysisSummary])
+def history(user: User = Depends(current_user), db: Session = Depends(get_db)):
+    recs = db.scalars(
+        select(Recommendation).where(Recommendation.user_id == user.id)
+        .order_by(Recommendation.created_at.desc(), Recommendation.id.desc())
+    ).all()
+    return [
+        AnalysisSummary(id=r.id, created_at=r.created_at, mode=r.source, outdated=_outdated(r, user))
+        for r in recs
+    ]
+
+
+@router.get("/recommendations/{rec_id}", response_model=AnalysisOut)
+def get_one(rec_id: int, user: User = Depends(current_user), db: Session = Depends(get_db)):
+    rec = db.get(Recommendation, rec_id)
+    if rec is None or rec.user_id != user.id:
+        raise HTTPException(404, "Analysis not found")
+    return _out(rec, user)
 
 
 @router.post("/recommendations", response_model=AnalysisOut, status_code=201)
