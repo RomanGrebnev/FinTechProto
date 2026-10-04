@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# Reset the replayable demo: close the open demo PR, put demo/base and demo/release back on v0.9.0,
-# delete the demo tag v1.0.0-demo. Never touches main, v0.9.0, demo/rc, demo/v1, demo/push1, demo/push2.
+# Reset the replayable demo: close the open demo PR, put demo/base and demo/release back on demo/root
+# (README + CI tooling only, so the release PR diff holds the whole product and code findings anchor inline),
+# delete the demo tag v1.0.0-demo. Never touches main, v0.9.0, demo/root, demo/step1, demo/step2, demo/rc, demo/v1.
 # Usage: scripts/demo_reset.sh --yes
 set -euo pipefail
 
-BASE_REF="v0.9.0^{commit}"
+BASE_REF="demo/root"
 SHA="$(git rev-parse "$BASE_REF")"
 REPO="$(gh repo view --json nameWithOwner --jq .nameWithOwner)"
 
@@ -32,4 +33,4 @@ fi
 if git ls-remote --exit-code --tags origin v1.0.0-demo >/dev/null 2>&1; then
   git push origin ":refs/tags/v1.0.0-demo"
 fi
-echo "Reset done: demo/base and demo/release at ${SHA:0:7} (v0.9.0)."
+echo "Reset done: demo/base and demo/release at ${SHA:0:7} (demo/root)."
