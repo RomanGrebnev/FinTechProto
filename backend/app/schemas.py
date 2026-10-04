@@ -109,6 +109,13 @@ class AnalysisOut(BaseModel):
     outdated: bool = False
 
 
+class AnalysisSummary(BaseModel):
+    id: int
+    created_at: datetime
+    mode: str
+    outdated: bool
+
+
 class MarketIndex(BaseModel):
     symbol: str
     name: str
