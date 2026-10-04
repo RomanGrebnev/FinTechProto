@@ -23,6 +23,9 @@ export default function Recommendations() {
       </div>
 
       <Disclaimer text={analysis?.disclaimer} />
+      {analysis?.outdated && (
+        <p role="alert" className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800 ring-1 ring-amber-200">Your profile changed. Refresh this analysis before acting on it.</p>
+      )}
       {error && (
         <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
           {error} {error.includes("holding") && <Link to="/portfolio" className="font-semibold underline">Add holdings</Link>}
@@ -56,7 +59,7 @@ export default function Recommendations() {
               <article key={i} className="card">
                 <div className="flex items-center gap-2">
                   <span className="grid size-6 place-items-center rounded-full bg-slate-100 text-xs font-bold">{i + 1}</span>
-                  <ActionBadge action={r.action} />
+                  {!analysis.outdated && <ActionBadge action={r.action} />}
                   <span className="text-sm font-medium text-slate-500">{r.ticker}</span>
                 </div>
                 <h3 className="mt-3 font-semibold">{r.title}</h3>

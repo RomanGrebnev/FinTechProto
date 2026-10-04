@@ -102,6 +102,7 @@ class AnalysisOut(BaseModel):
     source: str
     analysis: Analysis
     disclaimer: str
+    outdated: bool = False
 
 
 class MarketIndex(BaseModel):
