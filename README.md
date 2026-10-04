@@ -25,6 +25,7 @@ Log in with the demo user: **demo@wealthpilot.fr / demo1234**. The demo user has
 | Variable | Purpose |
 |---|---|
 | `MISTRAL_API_KEY` | Mistral API key. **If left empty, the app runs in demo mode** and returns rule-based recommendations, clearly labelled as such, so you can try everything without a key. |
+| `MISTRAL_MODEL` | Mistral model to use. Defaults to `mistral-large-latest`; set e.g. `mistral-small-latest` if your Mistral plan doesn't include the large model. |
 | `DATABASE_URL` | SQLAlchemy URL. Docker Compose points it at the bundled Postgres. |
 | `JWT_SECRET` | Secret used to sign auth tokens. Change it outside local dev. |
 
