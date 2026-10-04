@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..auth import create_token, current_user, hash_password, verify_password
 from ..db import get_db
-from ..models import User
-from ..schemas import Credentials, Me, Token
+from ..models import Recommendation, User
+from ..schemas import Credentials, DeleteAccount, Me, Token
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -32,3 +32,16 @@ def login(body: Credentials, db: Session = Depends(get_db)):
 @router.get("/me", response_model=Me)
 def me(user: User = Depends(current_user)):
     return Me(id=user.id, email=user.email, profile=user.profile)
+
+
+@router.delete("/me", status_code=204)
+def delete_me(body: DeleteAccount, user: User = Depends(current_user), db: Session = Depends(get_db)):
+    """GDPR Art. 17: erase the account and all its data (profile, holdings, recommendations)."""
+    if not verify_password(body.password, user.password_hash):
+        raise HTTPException(403, "Incorrect password")
+    # Recommendations are removed explicitly, then the user (cascades to profile and holdings)
+    db.query(Recommendation).filter(Recommendation.user_id == user.id).delete(synchronize_session=False)
+    db.expire(user)
+    db.delete(user)
+    db.commit()
+    return Response(status_code=204)

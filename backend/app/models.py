@@ -24,6 +24,7 @@ class User(Base):
     holdings: Mapped[list["Holding"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", order_by="Holding.id"
     )
+    recommendations: Mapped[list["Recommendation"]] = relationship(cascade="all, delete-orphan")
 
 
 class RiskProfile(Base):
