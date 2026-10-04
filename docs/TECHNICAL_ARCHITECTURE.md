@@ -89,7 +89,8 @@ Users sign in with email and password and receive a signed token valid for 7 day
 | Token | JWT, HS256, signed with `JWT_SECRET`; claims `sub` (user ID) and `exp` (7 days) |
 | Token on the client | Stored in browser `localStorage`, sent as `Authorization: Bearer` |
 | Logout | Clears the token in the browser |
-| `JWT_SECRET` default | `dev-secret-change-me` when unset |
+| `JWT_SECRET` | Required, at least 32 bytes; no default. The backend refuses to start without it, except with `APP_ENV=dev`, which uses a random per-process secret |
+| Account deletion | `DELETE /api/auth/me` with the password; erases the user, profile, holdings and recommendations |
 | Data access | Profile, holdings and recommendations are read and written through the authenticated user; holding updates and deletes check ownership and return 404 otherwise |
 | Roles | One user type; no admin interface |
 
