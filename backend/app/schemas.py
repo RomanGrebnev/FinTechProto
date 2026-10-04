@@ -11,6 +11,10 @@ class Credentials(BaseModel):
     password: str = Field(min_length=8, max_length=128)
 
 
+class DeleteAccount(BaseModel):
+    password: str = Field(min_length=1, max_length=128)
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
@@ -102,6 +106,14 @@ class AnalysisOut(BaseModel):
     source: str
     analysis: Analysis
     disclaimer: str
+    outdated: bool = False
+
+
+class AnalysisSummary(BaseModel):
+    id: int
+    created_at: datetime
+    mode: str
+    outdated: bool
 
 
 class MarketIndex(BaseModel):

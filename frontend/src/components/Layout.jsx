@@ -1,4 +1,6 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { useState } from "react";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { deleteAccount, setToken } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import Logo from "./Logo";
 
@@ -14,8 +16,53 @@ const Icon = ({ d }) => (
   </svg>
 );
 
+function DeleteAccount({ onDone }) {
+  const [open, setOpen] = useState(false);
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const confirm = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      await deleteAccount(password);
+      onDone();
+    } catch (err) {
+      setError(err.message);
+      setBusy(false);
+    }
+  };
+
+  if (!open) {
+    return <button onClick={() => setOpen(true)} className="rounded-lg px-2 py-1 text-slate-400 hover:text-rose-300">Delete my account</button>;
+  }
+  return (
+    <div className="fixed inset-0 z-30 grid place-items-center bg-black/50 px-4">
+      <form onSubmit={confirm} className="card w-full max-w-sm space-y-3 text-ink">
+        <h2 className="font-semibold">Delete my account</h2>
+        <p className="text-sm text-slate-600">This permanently erases your profile, holdings and all past analyses. It cannot be undone. Enter your password to confirm.</p>
+        <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password"
+          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" autoComplete="current-password" />
+        {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
+        <div className="flex justify-end gap-2">
+          <button type="button" onClick={() => { setOpen(false); setPassword(""); setError(""); }} className="rounded-lg px-3 py-2 text-sm text-slate-600">Cancel</button>
+          <button type="submit" disabled={busy} className="rounded-lg bg-rose-600 px-3 py-2 text-sm font-semibold text-white disabled:opacity-60">{busy ? "Deleting…" : "Delete permanently"}</button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
 export default function Layout() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const accountDeleted = () => {
+    setToken(null);
+    logout();
+    navigate("/login");
+  };
   return (
     <div className="min-h-dvh pb-24 md:pb-10">
       <header className="sticky top-0 z-20 bg-ink/95 backdrop-blur">
@@ -31,6 +78,7 @@ export default function Layout() {
           </nav>
           <div className="flex items-center gap-3 text-sm">
             <span className="hidden text-slate-400 sm:inline">{user?.email}</span>
+            <DeleteAccount onDone={accountDeleted} />
             <button onClick={logout} className="rounded-lg px-2 py-1 text-slate-300 hover:text-white">Log out</button>
           </div>
         </div>

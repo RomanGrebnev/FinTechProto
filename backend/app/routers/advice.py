@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -9,7 +11,7 @@ from ..db import get_db
 from ..models import Recommendation, User
 from ..portfolio import build_portfolio
 from ..prices import get_quotes
-from ..schemas import Analysis, AnalysisOut, MarketIndex
+from ..schemas import Analysis, AnalysisOut, AnalysisSummary, MarketIndex
 
 router = APIRouter(prefix="/api", tags=["advice"])
 
@@ -21,10 +23,21 @@ MARKET_INDICES = {
 }
 
 
-def _out(rec: Recommendation) -> AnalysisOut:
+def _utc(dt: datetime) -> datetime:
+    # SQLite returns naive datetimes; they are stored as UTC
+    return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+
+
+def _outdated(rec: Recommendation, user: User) -> bool:
+    """True when the profile was changed after this analysis was generated."""
+    return user.profile is not None and _utc(user.profile.updated_at) > _utc(rec.created_at)
+
+
+def _out(rec: Recommendation, user: User) -> AnalysisOut:
     return AnalysisOut(
         id=rec.id, created_at=rec.created_at, source=rec.source,
         analysis=Analysis.model_validate(rec.payload), disclaimer=DISCLAIMER,
+        outdated=_outdated(rec, user),
     )
 
 
@@ -34,7 +47,27 @@ def latest(user: User = Depends(current_user), db: Session = Depends(get_db)):
         select(Recommendation).where(Recommendation.user_id == user.id)
         .order_by(Recommendation.created_at.desc(), Recommendation.id.desc()).limit(1)
     )
-    return _out(rec) if rec else None
+    return _out(rec, user) if rec else None
+
+
+@router.get("/recommendations", response_model=list[AnalysisSummary])
+def history(user: User = Depends(current_user), db: Session = Depends(get_db)):
+    recs = db.scalars(
+        select(Recommendation).where(Recommendation.user_id == user.id)
+        .order_by(Recommendation.created_at.desc(), Recommendation.id.desc())
+    ).all()
+    return [
+        AnalysisSummary(id=r.id, created_at=r.created_at, mode=r.source, outdated=_outdated(r, user))
+        for r in recs
+    ]
+
+
+@router.get("/recommendations/{rec_id}", response_model=AnalysisOut)
+def get_one(rec_id: int, user: User = Depends(current_user), db: Session = Depends(get_db)):
+    rec = db.get(Recommendation, rec_id)
+    if rec is None or rec.user_id != user.id:
+        raise HTTPException(404, "Analysis not found")
+    return _out(rec, user)
 
 
 @router.post("/recommendations", response_model=AnalysisOut, status_code=201)
@@ -47,7 +80,7 @@ def generate(user: User = Depends(current_user), db: Session = Depends(get_db)):
     rec = Recommendation(user_id=user.id, payload=analysis.model_dump(), source=source)
     db.add(rec)
     db.commit()
-    return _out(rec)
+    return _out(rec, user)
 
 
 @router.get("/market", response_model=list[MarketIndex])
