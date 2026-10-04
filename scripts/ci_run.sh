@@ -13,6 +13,10 @@
 #   GH_TOKEN      token for gh (PR comment)
 #   MISTRAL_API_KEY  required by the engine
 #   GITHUB_STEP_SUMMARY  if set, the comment is appended to it
+#   CCOMMIT_APP_URL  CCOmmit app base URL for the review's links (default http://127.0.0.1:20001)
+#
+# On pull requests it also posts a PR review (scripts/ci_review.py): inline comments on the changed lines that
+# findings cite, REQUEST_CHANGES when NOT_READY. The upserted summary comment stays.
 #
 # Exit code is the audit's: 1 NOT_READY, 0 READY/REVIEW_REQUIRED, 2 engine error.
 set -uo pipefail
@@ -106,6 +110,18 @@ if [ -n "${PR_NUMBER:-}" ]; then
       gh api -X POST "repos/$REPO/issues/$PR_NUMBER/comments" -F "body=@$COMMENT" >/dev/null \
         && echo "ci_run: created PR comment" || echo "ci_run: could not create PR comment" >&2
     fi
+  fi
+fi
+
+# 7. PR review with inline code comments (pull requests only, never on an engine error). Never changes the exit code.
+if [ -n "${PR_NUMBER:-}" ] && [ "$CODE" -ne 2 ] && [ -s "$OUT_DIR/result.json" ]; then
+  REPO="${GH_REPO:-${GITHUB_REPOSITORY:-}}"
+  if [ -z "$REPO" ] || ! command -v gh >/dev/null 2>&1; then
+    echo "ci_run: skipping PR review (no repo or gh)" >&2
+  else
+    python3 "$ROOT/scripts/ci_review.py" --repo "$REPO" --pr "$PR_NUMBER" --sha "$SHA" \
+      --result "$OUT_DIR/result.json" --fix-plan "$OUT_DIR/fix-plan.md" \
+      || echo "ci_run: could not post PR review" >&2
   fi
 fi
 

@@ -2,6 +2,7 @@ name: compliance
 
 # CCOmmit release gate (SPEC 6.12). CCOmmit runs on this runner in headless CLI mode (SQLite, no Postgres needed).
 # Never pull_request_target: PR code must not run with secrets.
+# On pull requests ci_run.sh posts a PR review (inline comments on changed lines) plus the upserted summary comment.
 on:
   pull_request:
     branches: [main, demo/base]
@@ -56,6 +57,7 @@ jobs:
           RUN_NUMBER: ${{ github.run_number }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           BRANCH: ${{ github.head_ref || github.ref_name }}
+          CCOMMIT_APP_URL: ${{ vars.CCOMMIT_APP_URL }}
         run: bash scripts/ci_run.sh
 
       - name: Upload result
