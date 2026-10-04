@@ -38,6 +38,10 @@ class RiskProfile(Base):
     monthly_investment: Mapped[float] = mapped_column(Float)
     risk_tolerance: Mapped[int] = mapped_column(Integer)  # 1-5
     horizon_years: Mapped[int] = mapped_column(Integer)
+    # Suitability (FR-SUITABILITY-01). Nullable: no migrations yet; NULL means the profile is incomplete.
+    investment_knowledge: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    investment_experience_years: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    max_acceptable_loss_pct: Mapped[int | None] = mapped_column(Integer, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
     user: Mapped[User] = relationship(back_populates="profile")

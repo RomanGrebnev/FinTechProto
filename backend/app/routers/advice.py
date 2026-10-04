@@ -72,7 +72,9 @@ def get_one(rec_id: int, user: User = Depends(current_user), db: Session = Depen
 
 @router.post("/recommendations", response_model=AnalysisOut, status_code=201)
 def generate(user: User = Depends(current_user), db: Session = Depends(get_db)):
-    if user.profile is None:
+    p = user.profile
+    if p is None or p.investment_knowledge is None or p.investment_experience_years is None \
+            or p.max_acceptable_loss_pct is None:
         raise HTTPException(400, "Complete your risk profile first")
     if not user.holdings:
         raise HTTPException(400, "Add at least one holding first")
