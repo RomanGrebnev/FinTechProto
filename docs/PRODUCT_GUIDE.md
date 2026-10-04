@@ -4,13 +4,13 @@ Oct 4, 2026 · Lorenzo
 
 ## Welcome to Wealthpilot
 
-Wealthpilot is a web app that helps French retail investors understand their investment portfolio and get personalised, AI-generated ideas about it. It is an information and education tool: **it never buys, sells or moves money, and it does not provide regulated financial advice.**
+Wealthpilot is a web app that helps French retail investors understand their investment portfolio and get personalised, AI-generated ideas about it. It is an investment advice tool provided under CIF status: **it never buys, sells or moves money, and its recommendations are personalised, non-independent investment advice.**
 
 This guide explains, in plain language, what the app does, how each feature works and what happens to your data. It describes the current version (Phase 1 prototype).
 
 **Wealthpilot does:**
 
-- Ask you six questions to build your investor profile (age, income, goal, monthly budget, attitude to risk, time horizon).
+- Ask you nine questions to build your investor profile (age, income, goal, monthly budget, attitude to risk, time horizon, investment knowledge, investment experience, loss you could bear).
 - Let you record the investments you already hold elsewhere, by typing them in.
 - Show what those investments are worth today, using public market prices.
 - Measure how risky your portfolio is and compare that with the risk you said you are comfortable with.
@@ -21,7 +21,7 @@ This guide explains, in plain language, what the app does, how each feature work
 - Connect to your bank or brokerage account. Nothing is imported automatically.
 - Place orders, execute trades or hold your money or securities.
 - Charge commissions or receive payments from the products it mentions.
-- Replace a certified investment advisor. Every recommendation screen says so.
+- Replace a human advisor. Every recommendation screen shows Wealthpilot's regulatory status.
 
 ## Getting started
 
@@ -29,7 +29,7 @@ You need an email address and a password of at least 8 characters to create an a
 
 1. Open Wealthpilot and choose **Create an account**.
 2. Enter your email and a password. You are signed in straight away.
-3. Complete the six-question investor profile (next section).
+3. Complete the nine-question investor profile (next section).
 4. Add the investments you hold.
 5. Open your dashboard and request your first analysis.
 
@@ -43,7 +43,7 @@ You need an email address and a password of at least 8 characters to create an a
 
 ## Your investor profile
 
-Six questions, one per screen, tell Wealthpilot who you are as an investor. Your answers shape every recommendation, so it is worth keeping them up to date.
+Nine questions, one per screen, tell Wealthpilot who you are as an investor. Your answers shape every recommendation, so it is worth keeping them up to date.
 
 | # | Question | What you can answer | Why we ask |
 | --- | --- | --- | --- |
@@ -53,12 +53,15 @@ Six questions, one per screen, tell Wealthpilot who you are as an investor. Your
 | 4 | How much can you invest each month? | Any amount in euros | Lets suggestions focus on where new money should go. |
 | 5 | How do you feel about risk? | 1 Very cautious to 5 Adventurous, each with a plain description | Your stated tolerance is compared with the measured risk of your portfolio. |
 | 6 | When will you need this money? | 1 to 40 years | Longer horizons can absorb more ups and downs. |
+| 7 | How well do you know investing? | None, Basic (savings accounts, funds, ETFs), Informed (stocks, bonds, how markets move), Advanced (derivatives, leverage, complex products) | Complex products are kept away from investors who do not know them. |
+| 8 | How long have you been investing? | 0 to 50 years | Experience, with knowledge, sets how complex the suggestions can be. |
+| 9 | What loss could you bear? | 0%, 5%, 10%, 20%, 30% or 50% | A suggested product's plausible fall must not exceed this loss. |
 
 The risk scale is described to you as follows: 1, "I can't accept losing money, even temporarily"; 2, "Small dips are OK if returns are steady"; 3, "I accept ups and downs for better long-term growth"; 4, "I can live with a 20–30% drop in a bad year"; 5, "I'm chasing growth and can stomach large swings".
 
 You can change your answers at any time with **Edit profile** on the dashboard. Only the latest answers are kept.
 
-The profile is self-declared. Wealthpilot does not check your answers, and does not ask about your investment knowledge, experience, existing debts or total wealth.
+The profile is self-declared. Wealthpilot does not check your answers, and does not ask about your existing debts or total wealth. If your profile is incomplete (for example, an account created before questions 7 to 9 were added), Wealthpilot asks you to complete it before it generates an analysis.
 
 ## Your portfolio
 
@@ -113,12 +116,12 @@ An analysis is created only when you press **Analyse** (or **Refresh / Regenerat
 
 **What each analysis contains:**
 
-1. **A summary**: two or three sentences assessing your portfolio against your profile.
+1. **A summary**: two or three sentences assessing your portfolio against your profile, including a **suitability statement** explaining why the advice fits your knowledge, experience, loss capacity, risk tolerance and horizon.
 2. **Three recommendations**, each labelled Buy, Sell, Hold or Rebalance, naming a specific instrument and explaining why.
 3. **A risk flag**: the single most important risk to be aware of, rated low, medium or high.
 4. **A rebalancing suggestion**: a target split of your money across asset types (for example equities, bonds and cash), in percentages.
 
-**How it is generated.** Wealthpilot sends the AI your profile answers, your holdings and their current prices, plus fixed instructions. The instructions ask it to tailor ideas to your risk tolerance and horizon, prefer broad, low-cost funds, mention French account types (PEA, assurance-vie, compte-titres) where relevant, and present its output as educational. The answer is checked for the expected structure before it is shown; if it is malformed you see an error and nothing is saved.
+**How it is generated.** Wealthpilot sends the AI your profile answers, your holdings and their current prices, plus fixed instructions. The instructions ask it to tailor ideas to your risk tolerance, horizon, knowledge, experience and the loss you could bear, prefer broad, low-cost funds, mention French account types (PEA, assurance-vie, compte-titres) where relevant, and include the suitability statement. If you answered that you have no investment knowledge, it may suggest only diversified UCITS ETFs or bond funds, and it avoids complex products for basic knowledge or little experience. The answer is checked for the expected structure before it is shown; if it is malformed you see an error and nothing is saved.
 
 **Saved analyses and history.** Each analysis is saved with the date it was generated and the dashboard shows the latest one. The Recommendations page lists every past analysis under **History**, newest first, and you can open any of them read-only. An analysis is not updated automatically when prices or your holdings change, so refresh it after making changes.
 
@@ -132,9 +135,11 @@ An analysis is created only when you press **Analyse** (or **Refresh / Regenerat
 - The AI only knows what is described above. It does not know your tax situation, debts, other savings, or personal circumstances beyond your profile.
 - Nothing is executed. Acting on any idea is your decision, through your own bank or broker.
 
-Every screen that shows recommendations displays this notice:
+**Regulatory status.** Every screen that shows recommendations displays this status disclosure:
 
-> *Wealthpilot provides information and educational content only. This is not financial advice. Always consult a certified investment advisor before making investment decisions.*
+> *Wealthpilot SAS is a conseiller en investissements financiers (CIF) registered with ORIAS under no. 00000000. This is non-independent investment advice, based on the information you provided in your profile and portfolio. See our Terms of Service (Terms, section 2) for details.*
+
+ORIAS no. 00000000 is a fictional demo value: Wealthpilot is a fictional company, and the number is set with the `CIF_ORIAS_NUMBER` setting.
 
 ## Your data
 
@@ -160,7 +165,7 @@ Only an analysis request sends personal information outside Wealthpilot, and it 
 | --- | --- | --- | --- |
 | Email address | You, at sign-up | Wealthpilot database | No one |
 | Password | You, at sign-up | Wealthpilot database, scrambled (bcrypt hash), never stored in readable form | No one |
-| Investor profile: age, annual income, goal, monthly amount, risk tolerance, horizon | You, in the questionnaire | Wealthpilot database (latest answers only) | Mistral AI, when you request an analysis |
+| Investor profile: age, annual income, goal, monthly amount, risk tolerance, horizon, investment knowledge, experience, acceptable loss | You, in the questionnaire | Wealthpilot database (latest answers only) | Mistral AI, when you request an analysis |
 | Holdings: ticker, quantity, average buy price | You, on the Portfolio page | Wealthpilot database | Mistral AI, with current prices and values, when you request an analysis; Yahoo Finance receives the ticker symbol only |
 | Analyses | Generated by Mistral AI or demo mode | Wealthpilot database, every analysis with its date, until you delete your account | No one |
 | Sign-in token | Created at login | Your browser's local storage, expires after 7 days | No one |
@@ -175,12 +180,12 @@ Only an analysis request sends personal information outside Wealthpilot, and it 
 
 ## Important information and limitations
 
-Wealthpilot is an information and education tool, not an investment advisor, and using it does not create an advisory relationship.
+Wealthpilot SAS is registered as a *conseiller en investissements financiers* (CIF); its recommendations are personalised, non-independent investment advice based on the information you provide. It is not independent advice and it is not a promise of results.
 
-- **Not financial advice.** Content is general and educational, even when it names a specific instrument. Speak to a certified investment advisor (in France, a *conseiller en investissements financiers* registered with ORIAS) before making decisions.
+- **Non-independent advice, based on your answers.** Recommendations rely only on the profile and holdings you entered, and Wealthpilot does not analyse a wide enough range of instruments to qualify as independent. If your circumstances differ from your answers, the advice may not suit you.
 - **Investing involves risk.** You can lose some or all of the money you invest. Past performance and past volatility do not predict future results.
 - **Data accuracy.** Prices come from a free public source and may be delayed, incomplete or wrong. Values depend on the holdings you enter: a typo in a quantity or price changes every figure.
-- **AI output.** Recommendations are produced by an AI model and may contain errors, outdated information or ideas unsuitable for you. They are not reviewed by a human before you see them.
+- **AI output.** Recommendations are produced by an AI model and may contain errors, outdated information or ideas that do not suit you. They are not reviewed by a human before you see them.
 - **No tax advice.** Mentions of PEA, assurance-vie or flat-tax treatment are general. Your tax situation may differ.
 - **No execution.** Wealthpilot never places orders. Any transaction is made by you, through your own provider, at your own discretion.
 - **Prototype.** This is an early version. Features, calculations and wording may change.
@@ -220,12 +225,13 @@ This appendix is internal, not customer-facing. It sets out how the current buil
 | Area | Current behaviour |
 | --- | --- |
 | Output | Three recommendations per analysis, each with an action (buy, sell, hold, rebalance), a named ticker and a rationale; a target allocation in percent; a risk flag. |
-| Personalisation | Based on the six self-declared profile answers, the holdings and live prices. |
+| Personalisation | Based on the nine self-declared profile answers (including knowledge, experience and acceptable loss), the holdings and live prices. The summary carries a suitability statement. |
 | Human review | None. AI output is checked only for format, then shown and stored. |
 | AI provider | Mistral AI API, model mistral-large-latest, called from the server. The request has no email or user ID. |
-| AI instructions | Tells the model it is an educational assistant, not to present output as regulated advice, to prefer diversified low-cost UCITS ETFs, and to mention PEA, assurance-vie and compte-titres where relevant. |
-| Labelling | The disclaimer is shown on the dashboard recommendations panel and twice on the Recommendations page. The page says "Generated by Mistral AI" or "Demo mode". Analyses made before a profile change are flagged outdated; past analyses stay retrievable under History. |
+| AI instructions | Applies mandatory suitability rules (acceptable loss, knowledge, experience), requires a suitability statement in the summary, tells the model to prefer diversified low-cost UCITS ETFs, and to mention PEA, assurance-vie and compte-titres where relevant. |
+| Labelling | The CIF status disclosure (CIF, ORIAS no. 00000000 fictional, non-independent advice, link to the terms) is shown on the dashboard recommendations panel and twice on the Recommendations page. The page says "Generated by Mistral AI" or "Demo mode". Analyses made before a profile change are flagged outdated; past analyses stay retrievable under History. |
 | Demo mode | Rule-based text used when no AI key is set. It includes tax statements (PEA treatment after 5 years, 30% flat tax outside a PEA). |
+| Regulatory status | Wealthpilot SAS presents itself as a CIF registered with ORIAS (fictional no. 00000000, from `CIF_ORIAS_NUMBER`). Advice is non-independent. See `compliance/cif-registration.md` and `compliance/terms.md`. |
 | Sign-up | Email and password only. No terms of service, privacy notice or consent step. No age check at sign-up; the profile only accepts ages 18 to 100. |
 | Retention | Profile, holdings and every analysis kept until the user deletes the account. In-app deletion (password-confirmed, DELETE /api/auth/me) erases the user, profile, holdings and all analyses. No export. |
 | Logs | Web server access logs record IP addresses and request paths. |
