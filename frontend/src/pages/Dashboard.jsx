@@ -115,6 +115,9 @@ export default function Dashboard() {
               {generating ? "Analysing…" : analysis ? "Refresh" : "Analyse my portfolio"}
             </button>
           </div>
+          {analysis?.outdated && (
+            <p role="alert" className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800 ring-1 ring-amber-200">Your profile changed. Refresh this analysis before acting on it.</p>
+          )}
           {aiError && <p className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{aiError}</p>}
           {analysis === undefined || generating ? (
             <div className="py-6"><Spinner label={generating ? "Mistral is analysing your portfolio…" : "Loading…"} /></div>
@@ -123,7 +126,7 @@ export default function Dashboard() {
               <ul className="mt-4 divide-y divide-slate-100">
                 {analysis.analysis.recommendations.map((r, i) => (
                   <li key={i} className="flex items-start gap-3 py-3">
-                    <ActionBadge action={r.action} />
+                    {!analysis.outdated && <ActionBadge action={r.action} />}
                     <div className="min-w-0">
                       <div className="text-sm font-semibold">{r.title}</div>
                       <div className="text-xs text-slate-500">{r.ticker}</div>
